@@ -167,7 +167,10 @@
         <div style="background:#fff;border-radius:12px;padding:50px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;position:relative;">
           <button onclick="closeDocumentPopup()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#666;">×</button>
           <h3 id="documentTitle" style="color:var(--main-purple);margin-bottom:24px;font-size:24px;">法律文书</h3>
-          <div id="documentContent" style="line-height:1.6;color:#333;padding-left:10px;white-space:pre-wrap;"></div>
+          <!--在这里把生成的文书改成可编辑的-->
+
+          <div id="documentContent" contenteditable="true" style="line-height:1.8;color:#333;padding:20px;white-space:pre-wrap;word-wrap:break-word;font-family:SimSun,宋体,serif;font-size:14px;min-height:400px;border:1px solid #eee;border-radius:8px;background:#fafafa;"></div>
+          <button id="savePdfBtn" style="margin-top:20px;float:right;">保存为PDF</button>
         </div>
       </div>
     </div>
@@ -181,5 +184,6 @@
 <script src="js/ai-legal.js"></script>
 <script src="js/contract.js"></script>
 <script src="js/document.js"></script>
+<script src="js/html2pdf.bundle.min.js"></script>
 </body>
 </html> 

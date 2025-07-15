@@ -1,6 +1,7 @@
 // 文书生成功能JS
 let currentDocType = '民事起诉状'; // 默认文书类型
 let documentHistory = []; // 文书生成历史记录
+let hasUserInput = false; // 跟踪用户是否已输入内容
 
 // 文书生成历史记录本地存储
 function getDocumentHistory() {
@@ -57,24 +58,268 @@ function showDocumentPopup(content, docType) {
   const popup = document.getElementById('documentPopup');
   const contentDiv = document.getElementById('documentContent');
   const titleDiv = document.getElementById('documentTitle');
+  const saveBtn = document.getElementById('savePdfBtn');
   
   if(popup && contentDiv && titleDiv) {
     titleDiv.textContent = docType || '法律文书';
+    // 保持原始格式，使用pre-wrap样式
     contentDiv.innerHTML = content.replace(/\n/g, '<br>');
+    contentDiv.style.whiteSpace = 'pre-wrap';
+    contentDiv.style.wordWrap = 'break-word';
+    contentDiv.style.lineHeight = '1.8';
+    contentDiv.style.fontFamily = 'SimSun, 宋体, serif';
+    contentDiv.style.fontSize = '14px';
+    
     popup.style.display = 'flex';
+    
+    // 重置用户输入状态
+    hasUserInput = false;
+    
+    // 添加点击事件监听器，根据用户输入状态决定光标位置
+    contentDiv.addEventListener('click', function(e) {
+      // 延迟设置光标位置，确保在点击事件处理完成后执行
+      setTimeout(() => {
+        try {
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          
+          const range = document.createRange();
+          
+          if (hasUserInput) {
+            // 如果用户已输入内容，光标在末尾
+            range.setStart(contentDiv, contentDiv.childNodes.length);
+            contentDiv.scrollTop = contentDiv.scrollHeight;
+          } else {
+            // 如果用户未输入内容，光标在开头
+            range.setStart(contentDiv, 0);
+            contentDiv.scrollTop = 0;
+          }
+          
+          range.collapse(true);
+          selection.addRange(range);
+        } catch (e) {
+          console.log('点击时设置光标位置失败:', e);
+        }
+      }, 10);
+    }, { once: true }); // 只绑定一次，避免重复绑定
+    
+    // 添加焦点事件监听器，根据用户输入状态决定光标位置
+    contentDiv.addEventListener('focus', function(e) {
+      // 延迟设置光标位置
+      setTimeout(() => {
+        try {
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          
+          const range = document.createRange();
+          
+          if (hasUserInput) {
+            // 如果用户已输入内容，光标在末尾
+            range.setStart(contentDiv, contentDiv.childNodes.length);
+            contentDiv.scrollTop = contentDiv.scrollHeight;
+          } else {
+            // 如果用户未输入内容，光标在开头
+            range.setStart(contentDiv, 0);
+            contentDiv.scrollTop = 0;
+          }
+          
+          range.collapse(true);
+          selection.addRange(range);
+        } catch (e) {
+          console.log('聚焦时设置光标位置失败:', e);
+        }
+      }, 10);
+    }, { once: true }); // 只绑定一次，避免重复绑定
+    
+    // 添加输入事件监听器，当用户输入内容时光标保持在末尾
+    contentDiv.addEventListener('input', function(e) {
+      // 标记用户已输入内容
+      hasUserInput = true;
+      
+      // 用户输入内容后，光标保持在末尾
+      setTimeout(() => {
+        try {
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          
+          const range = document.createRange();
+          // 设置光标到内容末尾
+          range.setStart(contentDiv, contentDiv.childNodes.length);
+          range.collapse(true);
+          selection.addRange(range);
+          
+          // 滚动到底部确保光标可见
+          contentDiv.scrollTop = contentDiv.scrollHeight;
+        } catch (e) {
+          console.log('输入时光标设置失败:', e);
+        }
+      }, 10);
+    }, { once: true }); // 只绑定一次，避免重复绑定
+  }
+  // 绑定保存PDF事件
+  if (saveBtn) {
+    saveBtn.onclick = async function() {
+      try {
+        const element = document.getElementById('documentContent');
+        
+        // 创建一个临时的PDF容器，确保样式正确
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.cssText = `
+          padding: 20px;
+          font-family: 'SimSun', '宋体', serif;
+          font-size: 14px;
+          line-height: 1.8;
+          color: #000;
+          background: white;
+          width: 210mm;
+          min-height: 297mm;
+          margin: 0;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow: visible;
+        `;
+        pdfContainer.innerHTML = element.innerHTML;
+        
+        // 将临时容器添加到body中，确保样式正确应用
+        document.body.appendChild(pdfContainer);
+        
+        // 用 html2pdf 导出，支持中文
+        const opt = {
+          margin: [15, 15, 15, 15], // 上右下左边距，单位mm
+          filename: '法律文书.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0,
+            width: 210 * 2.83465, // A4宽度转换为像素
+            height: 297 * 2.83465  // A4高度转换为像素
+          },
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true,
+            precision: 16
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+        
+        // 显示加载提示
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = '正在生成PDF...';
+        saveBtn.disabled = true;
+        
+        try {
+          await html2pdf().set(opt).from(pdfContainer).save();
+          alert('PDF生成成功！');
+        } catch (e) {
+          console.error('导出PDF出错', e);
+          alert('PDF导出失败，请重试。错误信息：' + e.message);
+        } finally {
+          // 恢复按钮状态
+          saveBtn.textContent = originalText;
+          saveBtn.disabled = false;
+          
+          // 清理临时元素
+          if (document.body.contains(pdfContainer)) {
+            document.body.removeChild(pdfContainer);
+          }
+        }
+      } catch (e) {
+        console.error('PDF生成初始化失败:', e);
+        alert('PDF生成失败，请重试');
+      }
+    };
   }
 }
 
 function closeDocumentPopup() {
   const popup = document.getElementById('documentPopup');
+  const contentDiv = document.getElementById('documentContent');
+  
   if(popup) {
     popup.style.display = 'none';
+    
+    // 重置用户输入状态
+    hasUserInput = false;
+    
+    // 清除选择，避免光标残留
+    setTimeout(() => {
+      window.getSelection().removeAllRanges();
+      
+      // 移除之前添加的事件监听器，确保下次打开时重新绑定
+      if (contentDiv) {
+        // 移除所有事件监听器（通过克隆节点的方式）
+        const newContentDiv = contentDiv.cloneNode(true);
+        contentDiv.parentNode.replaceChild(newContentDiv, contentDiv);
+        newContentDiv.id = 'documentContent';
+        newContentDiv.contentEditable = 'true';
+      }
+    }, 50);
   }
 }
 
 // 解析用户输入的文本，提取关键信息
 function parseUserInput(text) {
-  // 简单的信息提取逻辑，可以根据需要优化
+  // 检查文本中是否包含特定信息的函数
+  function hasInfo(text, keywords) {
+    return keywords.some(keyword => text.includes(keyword));
+  }
+  
+  // 检查是否包含日期信息
+  function hasDateInfo(text) {
+    const datePatterns = [
+      /(\d{4}年\d{1,2}月\d{1,2}日)/,
+      /(\d{4}-\d{1,2}-\d{1,2})/,
+      /(\d{4}\/\d{1,2}\/\d{1,2})/,
+      /(出生日期|出生时间|生日)/,
+      /(案发时间|事发时间|发生时间)/,
+      /(借款时间|借钱时间|借条时间)/,
+      /(还款时间|还钱时间)/,
+      /(签订时间|签署时间|合同时间)/
+    ];
+    return datePatterns.some(pattern => pattern.test(text));
+  }
+  
+  // 检查是否包含具体的时间信息（用于在案件事实中标记时间）
+  function hasSpecificTimeInfo(text) {
+    const timeKeywords = [
+      '出生日期', '出生时间', '生日', '案发时间', '事发时间', '发生时间',
+      '借款时间', '借钱时间', '借条时间', '还款时间', '还钱时间',
+      '签订时间', '签署时间', '合同时间', '违约时间', '到期时间'
+    ];
+    return timeKeywords.some(keyword => text.includes(keyword));
+  }
+  
+  // 检查是否包含地址信息
+  function hasAddressInfo(text) {
+    const addressKeywords = [
+      '地址', '住址', '居住', '户籍', '户口', '住所', '现住', '现居',
+      '省', '市', '县', '区', '街道', '路', '号', '室', '楼', '单元'
+    ];
+    return hasInfo(text, addressKeywords);
+  }
+  
+  // 检查是否包含联系方式
+  function hasContactInfo(text) {
+    const contactPatterns = [
+      /(\d{11})/, // 手机号
+      /(\d{3,4}-\d{7,8})/, // 座机号
+      /(电话|手机|联系方式|联系电话|联系手机)/
+    ];
+    return contactPatterns.some(pattern => pattern.test(text));
+  }
+  
+  // 检查是否包含身份证号
+  function hasIdNumber(text) {
+    const idPattern = /(\d{17}[\dXx])/;
+    return idPattern.test(text) || text.includes('身份证号') || text.includes('身份证号码');
+  }
+  
   const info = {
     plaintiff: {
       name: '',
@@ -122,6 +367,28 @@ function parseUserInput(text) {
   // 如果没有提取到姓名，使用默认值
   if(!info.plaintiff.name) info.plaintiff.name = '原告';
   if(!info.defendant.name) info.defendant.name = '被告';
+  
+  // 检查并设置缺失信息为XXX
+  if(!hasIdNumber(text)) {
+    info.plaintiff.id_number = 'XXX';
+    info.defendant.id_number = 'XXX';
+  }
+  
+  if(!hasAddressInfo(text)) {
+    info.plaintiff.address = 'XXX';
+    info.defendant.address = 'XXX';
+  }
+  
+  if(!hasContactInfo(text)) {
+    info.plaintiff.contact = 'XXX';
+    info.defendant.contact = 'XXX';
+  }
+  
+  // 处理案件事实中的时间信息
+  if(!hasSpecificTimeInfo(text)) {
+    // 如果用户没有提到具体时间，在案件事实中添加时间占位符
+    info.case_info.facts = text + '\n\n注：案发时间、出生日期等具体时间信息用XXX表示。';
+  }
   
   // 根据案件类型生成诉讼请求
   if(info.case_info.case_type === '民间借贷') {
@@ -281,4 +548,4 @@ function initDocument() {
 
 document.addEventListener('DOMContentLoaded', function() {
   initDocument();
-}); 
+})
