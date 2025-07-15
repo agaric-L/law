@@ -1,10 +1,10 @@
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import SystemMessage, HumanMessage
 
-
 # 可根据需要引入其他langchain集成的模型
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from langchain_openai import ChatOpenAI
@@ -13,7 +13,8 @@ MODEL_CONFIG = {
     '通义千问': {
         'api_key': os.environ.get('QWEN_API_KEY', ''),
         'model': os.environ.get('QWEN_MODEL', 'qwen-turbo'),
-        'url': os.environ.get('QWEN_URL', 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation'),
+        'url': os.environ.get('QWEN_URL',
+                              'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation'),
     },
     '星火大模型': {
         'api_key': os.environ.get('SPARK_API_KEY', ''),
@@ -32,11 +33,13 @@ MODEL_CONFIG = {
     },
 }
 
+
 def reset_ai_legal_memory():
     print("memory reset")
     if hasattr(ai_legal_qa_function, 'memory'):
         del ai_legal_qa_function.memory
-        
+
+
 def ai_legal_qa_function(question: str, model: str = 'qwen') -> dict:
     print("memory id:", id(ai_legal_qa_function.memory) if hasattr(ai_legal_qa_function, 'memory') else "no memory")
     # 静态变量/全局变量，保证多轮对话记忆

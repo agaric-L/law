@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .services.smart_contracts import router as smart_contracts_router
 from .api import router
 #git add .
 #git commit -m "XXXXX"
@@ -16,4 +15,4 @@ app.add_middleware(
 
 )
 app.include_router(router)
-app.include_router(smart_contracts_router)
+

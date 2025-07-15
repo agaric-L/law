@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de9b7a0d-773f-40de-9b94-dba478f7dd6f" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ai_legal_history.db" beforeDir="false" afterPath="$PROJECT_DIR$/ai_legal_history.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_legal_history.db" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/services/langchain_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/js/ai-legal.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/js/ai-legal.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/services/ai_chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/services/ai_chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/services/smart_contracts.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/services/smart_contracts.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,6 +104,9 @@
       <workItem from="1752454841771" duration="13824000" />
       <workItem from="1752479996317" duration="7327000" />
       <workItem from="1752491672929" duration="22000" />
+      <workItem from="1752491910937" duration="335000" />
+      <workItem from="1752493735351" duration="1394000" />
+      <workItem from="1752540411457" duration="936000" />
     </task>
     <servers />
   </component>
