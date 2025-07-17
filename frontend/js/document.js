@@ -545,6 +545,7 @@ function initDocument() {
   window.currentDocType = '民事起诉状';
   updateDocTypeUI('民事起诉状');
 }
+
 function disableBodyScroll() {
   document.body.style.overflow = 'hidden';
 }
