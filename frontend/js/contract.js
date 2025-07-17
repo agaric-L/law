@@ -192,7 +192,6 @@ function handleFile(file) {
   }
 }
 
-<<<<<<< HEAD
 function disableBodyScroll() {
   document.body.style.overflow = 'hidden';
 }
@@ -219,8 +218,6 @@ function observeContractPage() {
 // 当离开智能合同页面时调用
 // enableBodyScroll(); // 移除此行，改为监听页面显示
 
-=======
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 // 初始化智能合同功能
 function initContract() {
   const fileInput = document.getElementById('contractFile');
@@ -263,7 +260,6 @@ function initContract() {
         alert('请先上传合同文件');
         return;
       }
-<<<<<<< HEAD
       // 显示加载中
       reviewBtn.disabled = true;
       const oldText = reviewBtn.textContent;
@@ -285,26 +281,6 @@ function initContract() {
             const analysis = data.analysis || {};
             const suggestion = analysis.raw || JSON.stringify(analysis, null, 2);
 
-=======
-      
-      try {
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        
-        const res = await fetch('http://localhost:8000/smart_contracts/analyze_contract/', {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        
-        const data = await res.json();
-        const analysis = data.analysis || {};
-        const suggestion = analysis.raw || JSON.stringify(analysis, null, 2);
-        
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
         // 保存历史
         addContractHistory({
           filename: uploadText.innerText.replace('已上传：',''), 
@@ -318,13 +294,10 @@ function initContract() {
         console.error('分析失败:', error);
         const errorMsg = '服务器暂时无法响应，请稍后重试。';
         alert(errorMsg);
-<<<<<<< HEAD
       } finally {
         // 恢复按钮状态
         reviewBtn.disabled = false;
         reviewBtn.textContent = oldText;
-=======
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
       }
     });
     
@@ -343,9 +316,5 @@ function initContract() {
 // 页面加载完成后初始化智能合同功能
 document.addEventListener('DOMContentLoaded', function() {
   initContract();
-<<<<<<< HEAD
   observeContractPage(); // 在DOMContentLoaded中调用监听函数
 });
-=======
-}); 
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
