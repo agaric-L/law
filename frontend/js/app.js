@@ -18,7 +18,6 @@ function initNavigation() {
       });
       this.classList.add('active');
       document.getElementById(page).style.display = '';
-<<<<<<< HEAD
       
       // 管理背景和覆盖层
       const body = document.body;
@@ -33,13 +32,10 @@ function initNavigation() {
         body.classList.remove('home-page');
         overlay.style.display = 'none';
       }
-=======
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
     };
   });
 }
 
-<<<<<<< HEAD
 // 首页法律法规案例卡片假数据
 const lawData = {
   newLaws: [
@@ -203,9 +199,4 @@ document.addEventListener('DOMContentLoaded', function() {
       showFullLawEntry(e.target.parentElement);
     }
   });
-=======
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
-  initNavigation();
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }); 
