@@ -31,19 +31,18 @@
   </aside>
 
   <!-- 右侧主内容区 -->
-  <main class="main-content">
+<main class="main-content">
     <div id="page-home">
-      <div class="home-header">
-        <div>
+      <div class="home-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0 0 0;">
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
           <div class="law-search-tabs">
-            <span class="law-search-tab active" data-type="all">关键词</span>
-            <span class="law-search-tab" data-type="law">法律</span>
-            <span class="law-search-tab" data-type="regulation">法规</span>
-            <span class="law-search-tab" data-type="case">案例</span>
+            <span style="font-size:36px;font-weight:800;color:#0147a6;">欢迎来到智法云，您的法律守护者</span>
           </div>
           <div class="law-search-bar modern">
-            <input type="text" id="law-search-input" placeholder="请输入您想查询的关键词" />
-            <button id="law-search-btn">搜索</button>
+            <input type="text" id="law-search-input" placeholder="请输入您想检索的法律法规" />
+            <button id="law-search-btn" style="background:transparent;border:none;border-radius:50%;padding:0 16px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
+              <img src="image/搜索.png" alt="搜索" style="height:36px;width:36px;object-fit:contain;" />
+            </button>
           </div>
         </div>
       </div>
@@ -54,18 +53,26 @@
         </div>
       </div>
       <div id="law-card-multi">
-        <div class="law-card-section">
-          <div class="law-card" id="card-new-laws">
-            <div class="law-card-title">法律</div>
-            <div class="law-card-list" id="list-new-laws"></div>
+        <div class="case-card-section">
+          <div class="case-card" id="card-criminal">
+            <div class="case-card-title">刑事案件</div>
+            <div class="case-card-list" id="list-criminal"></div>
           </div>
-          <div class="law-card" id="card-new-regulations">
-            <div class="law-card-title">法规</div>
-            <div class="law-card-list" id="list-new-regulations"></div>
+          <div class="case-card" id="card-civil">
+            <div class="case-card-title">民事案件</div>
+            <div class="case-card-list" id="list-civil"></div>
           </div>
-          <div class="law-card" id="card-new-cases">
-            <div class="law-card-title">案例</div>
-            <div class="law-card-list" id="list-new-cases"></div>
+          <div class="case-card" id="card-commercial">
+            <div class="case-card-title">商事案件</div>
+            <div class="case-card-list" id="list-commercial"></div>
+          </div>
+          <div class="case-card" id="card-administrative">
+            <div class="case-card-title">行政/国家赔偿案件</div>
+            <div class="case-card-list" id="list-administrative"></div>
+          </div>
+          <div class="case-card" id="card-environment">
+            <div class="case-card-title">环资案件</div>
+            <div class="case-card-list" id="list-environment"></div>
           </div>
         </div>
       </div>
