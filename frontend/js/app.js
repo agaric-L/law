@@ -18,70 +18,8 @@ function initNavigation() {
       });
       this.classList.add('active');
       document.getElementById(page).style.display = '';
-      
-      // 管理背景和覆盖层
-      const body = document.body;
-      const overlay = document.getElementById('home-overlay');
-      
-      if (page === 'page-home') {
-        // 首页：显示背景图片和覆盖层
-        body.classList.add('home-page');
-        overlay.style.display = 'block';
-      } else {
-        // 其他页面：移除背景图片，隐藏覆盖层
-        body.classList.remove('home-page');
-        overlay.style.display = 'none';
-      }
     };
   });
-}
-
-// 首页法律法规案例卡片假数据
-const lawData = {
-  newLaws: [
-    { title: '个人信息保护法', label: '2021', desc: '加强个人信息保护' },
-    { title: '反食品浪费法', label: '2021', desc: '遏制食品浪费' },
-    { title: '数据安全法', label: '2021', desc: '数据合规新要求' },
-    { title: '未成年人保护法', label: '2020', desc: '保护未成年人权益' },
-    { title: '民法典', label: '2021', desc: '社会生活百科全书' },
-    { title: '劳动合同法', label: '2019', desc: '规范劳动关系' },
-    { title: '婚姻法', label: '2018', desc: '婚姻家庭规范' }
-  ],
-  newRegulations: [
-    { title: '网络直播营销管理办法', label: '2022', desc: '规范网络直播' },
-    { title: '互联网广告管理暂行办法', label: '2023', desc: '广告合规' },
-    { title: '个人信息出境标准合同办法', label: '2023', desc: '数据跨境合规' },
-    { title: '医疗器械监督管理条例', label: '2021', desc: '医疗器械监管' },
-    { title: '食品安全国家标准', label: '2022', desc: '食品安全' },
-    { title: '住房租赁条例', label: '2023', desc: '住房租赁规范' }
-  ],
-  newCases: [
-    { title: '吴某宇故意杀人案', label: '2023', desc: '社会关注度高' },
-    { title: '杭州保姆纵火案', label: '2018', desc: '重大刑事案件' },
-    { title: '张某明等故意毁损名誉案', label: '2022', desc: '名誉权保护' },
-    { title: '郭志诚诈骗案', label: '2021', desc: '金融诈骗' },
-    { title: '程三冒贪污案', label: '2020', desc: '职务犯罪' },
-    { title: '山东省济南市人民法院污染案', label: '2022', desc: '环境保护' }
-  ]
-};
-
-function renderLawCards(filter = '', type = 'all') {
-  function renderList(list, elId) {
-    const el = document.getElementById(elId);
-    el.innerHTML = '';
-    list.filter(item => {
-      const matchType = (type === 'all') ||
-        (type === 'law' && elId === 'list-new-laws') ||
-        (type === 'regulation' && elId === 'list-new-regulations') ||
-        (type === 'case' && elId === 'list-new-cases');
-      return matchType && (!filter || item.title.includes(filter) || item.desc.includes(filter));
-    }).forEach(item => {
-      el.innerHTML += `<div class=\"law-card-item law-entry\"><div style=\"display:flex;align-items:center;margin-bottom:4px;\"><img src='image/火苗.png' class='law-fire-icon' alt='火苗' /><span class='law-entry-title'>${item.title}</span></div><div style=\"padding-left:22px;\"><span class='law-entry-desc'>${item.desc}</span></div></div>`;
-    });
-  }
-  renderList(lawData.newLaws, 'list-new-laws');
-  renderList(lawData.newRegulations, 'list-new-regulations');
-  renderList(lawData.newCases, 'list-new-cases');
 }
 
 // 词条悬停/点击时显示全部内容（不再显示详情按钮）
@@ -90,49 +28,32 @@ function showFullLawEntry(entry) {
   title.style.whiteSpace = 'normal';
   title.style.overflow = 'visible';
   title.style.textOverflow = 'clip';
-  // 不改变字体大小和位置
+  title.style.fontSize = '13px';
   title.style.background = '#f7faff';
-  title.style.padding = '0';
-  title.style.borderRadius = '0';
+  title.style.padding = '2px 4px';
+  title.style.borderRadius = '4px';
 }
 function hideFullLawEntry(entry) {
   const title = entry.querySelector('.law-entry-title');
   title.style.whiteSpace = 'nowrap';
   title.style.overflow = 'hidden';
   title.style.textOverflow = 'ellipsis';
-  // 不改变字体大小和位置
+  title.style.fontSize = '15px';
   title.style.background = 'none';
   title.style.padding = '0';
   title.style.borderRadius = '0';
 }
-// 首页年龄段饼状图
-function drawAgePieChart() {
-  const canvas = document.getElementById('agePieChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // 示例数据：18岁以下、18-30岁、31-45岁、46岁及以上
-  const data = [12, 38, 32, 18]; // 百分比
-  const colors = ['#E5E5E1', '#6B8E7A', '#828FA2', '#9CC3DF'];
-  let start = -Math.PI / 2;
-  data.forEach((val, i) => {
-    const angle = (val / 100) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.moveTo(110, 110);
-    ctx.arc(110, 110, 90, start, start + angle, false);
-    ctx.closePath();
-    ctx.fillStyle = colors[i];
-    ctx.fill();
-    start += angle;
-  });
-}
+
+
 // 搜索联动后端/law_search
 async function searchLawApi(query) {
-      const resp = await fetch('http://127.0.0.1:8000/law_search', {
+  console.log("***************");
+  const resp = await fetch('http://localhost:8000/law_search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query })
   });
+  console.log(resp);
   return await resp.json();
 }
 function showSearchResult(results) {
@@ -140,29 +61,185 @@ function showSearchResult(results) {
   document.getElementById('law-card-search-result').style.display = '';
   const list = document.getElementById('search-result-list');
   list.innerHTML = '';
-  if (results && results.length) {
-    results.forEach(item => {
-      list.innerHTML += `<div class="law-card-item"><span class="law-entry-title">${item}</span></div>`;
+
+  // 优先渲染raw_results
+  let laws = [];
+  // 检查多种可能的数据结构
+  if (Array.isArray(results?.raw_results) && results.raw_results.length) {
+    laws = results.raw_results.filter(item => item.type === 'law');
+  } else if (Array.isArray(results?.summary?.laws)) {
+    laws = results.summary.laws;
+  } else if (results?.laws && Array.isArray(results.laws)) {
+    laws = results.laws;
+  }
+
+      // 渲染法律法规区
+  if (laws.length) {
+    // 重新处理法条内容，保证每个条目只显示自己的内容
+    const processedLaws = [];
+    const titleRegex = /第[\d一二三四五六七八九十百千万]+条.*?/;
+    
+    // 首先收集所有的原始数据
+    laws.forEach(law => {
+      let title = law.title || law.name || '';
+      let allContent = '';
+      
+      if (law.details && Array.isArray(law.details)) {
+        allContent = law.details.join('\n');
+      } else if (law.content) {
+        allContent = law.content;
+      } else if (law.detail) {
+        allContent = law.detail;
+      }
+      
+      // 将标题与内容放入处理队列
+      processedLaws.push({
+        title: title,
+        content: allContent
+      });
+    });
+    
+         // 为每个条目正确分配内容
+     for (let i = 0; i < processedLaws.length; i++) {
+       const currentLaw = processedLaws[i];
+       
+       // 如果是从API返回的raw_results处理
+       if (laws[i].details && Array.isArray(laws[i].details)) {
+         // 直接使用详细内容，不做过滤，只要确保不重复标题即可
+         let details = laws[i].details.filter(d => d.trim() !== currentLaw.title);
+         processedLaws[i].content = details.join('\n');
+         continue;
+       }
+       
+       // 如果是其他格式，则按标题分割
+       let contentLines = currentLaw.content.split('\n');
+       let cleanContent = [];
+       let foundNextTitle = false;
+       
+       // 查找下一个标题的位置
+       for (let j = 0; j < contentLines.length; j++) {
+         const line = contentLines[j].trim();
+         if (!line) continue;
+         
+         // 检查是否为下一个法条的标题
+         const isNextTitle = titleRegex.test(line) && 
+                             line !== currentLaw.title && 
+                             line.startsWith('第');
+                             
+         if (isNextTitle && j > 0) { // 找到下一个标题，但不是第一行
+           foundNextTitle = true;
+           // 保留之前的所有内容
+           cleanContent = contentLines.slice(0, j).filter(l => l.trim() && l.trim() !== currentLaw.title);
+           break;
+         }
+       }
+       
+       // 如果没有找到下一个标题，保留所有内容
+       if (!foundNextTitle) {
+         cleanContent = contentLines.filter(l => l.trim() && l.trim() !== currentLaw.title);
+       }
+       
+       // 更新处理后的内容
+       processedLaws[i].content = cleanContent.join('\n');
+    }
+    
+    // 渲染处理后的法条数据
+    processedLaws.forEach((law, idx) => {
+      let title = law.title;
+      let content = law.content;
+      
+      // 如果内容中包含标题，去除标题部分(额外保险措施)
+      if (content.startsWith(title)) {
+        content = content.slice(title.length).replace(/^[:：\s]*/, '');
+      }
+      
+            // 渲染处理后的条目
+      list.innerHTML += `<div style='margin-bottom:0;padding:18px 0;${idx !== 0 ? "border-top:1px dashed #bbb;" : ''}'>
+        <div style='font-size:18px;font-weight:600;line-height:1.5;margin-bottom:8px;'>${title}</div>
+        <div style='color:#444;font-size:15px;line-height:1.9;font-weight:normal;white-space:pre-line;'>${content}</div>
+      </div>`;
     });
   } else {
-    list.innerHTML = '<div style="color:#888;">未检索到相关内容</div>';
+    list.innerHTML += `<div style='color:#bbb;margin-bottom:18px;'>暂无相关法律法规</div>`;
   }
 }
+
+
+
+
 function showDefaultCards() {
   document.getElementById('law-card-multi').style.display = '';
   document.getElementById('law-card-search-result').style.display = 'none';
 }
-// 页面加载完成后初始化
+
+async function fetchCaseCards(forceRefresh = false) {
+  try {
+    const url = `http://localhost:8000/api/case_cards${forceRefresh ? '?force_refresh=true' : ''}`;
+    const resp = await fetch(url);
+    return await resp.json();
+  } catch (error) {
+    console.error('获取案例卡片数据失败:', error);
+    return {};
+  }
+}
+
+function renderCaseCards(data) {
+  console.log('案例卡片数据:', data);
+  
+  // 后端返回的数据结构映射到前端卡片ID
+  const typeMap = {
+    "刑事案件": "criminal",
+    "民事案件": "civil",
+    "商事案件": "commercial",
+    "行政案件": "administrative",
+    "环资案件": "environment"
+  };
+  
+  // 遍历五种案例类型
+  Object.keys(typeMap).forEach(type => {
+    const el = document.getElementById('list-' + typeMap[type]);
+    if (!el) {
+      console.error(`找不到元素: list-${typeMap[type]}`);
+      return;
+    }
+    
+    el.innerHTML = '';
+    
+    // 确保数据存在且有caseList
+    if (!data[type] || !data[type].caseList || !Array.isArray(data[type].caseList)) {
+      el.innerHTML = '<div class="case-item">暂无数据</div>';
+      return;
+    }
+    
+    // 渲染案例列表
+    const caseList = data[type].caseList;
+    caseList.forEach(item => {
+      // 使用caseName作为标题，caseOverview作为描述
+      const title = item.caseName || '';
+      const desc = item.caseOverview || '';
+      // 使用caseUrl作为链接，如果没有则使用默认链接
+      const url = item.caseUrl || 'https://eastlawlibrary.court.gov.cn/court-digital-library-search/page/caseFilesDatabase/imageCaseDetail.html';
+      
+      el.innerHTML += `
+        <div class="case-item" onclick="window.open('${url}', '_blank')">
+          <div class="case-title">
+            <span class="case-fire"><img src="image/火苗.png" alt="热门" style="width: 16px; height: 16px; vertical-align: middle;"></span>
+            <span>${title}</span>
+          </div>
+          <div class="case-desc">${desc}</div>
+        </div>
+      `;
+    });
+  });
+}
+
+// 页面加载时自动拉取
 // 搜索标签切换交互
 let currentSearchType = 'all';
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   initNavigation();
-  renderLawCards();
-  drawAgePieChart();
-  
-  // 初始化背景状态 - 默认显示首页背景
-  document.body.classList.add('home-page');
-  document.getElementById('home-overlay').style.display = 'block';
+  // renderLawCards(); // 注释掉原有三卡片渲染
+  // drawAgePieChart(); // 如无用可注释
   // 标签切换
   document.querySelectorAll('.law-search-tab').forEach(tab => {
     tab.onclick = function() {
@@ -174,8 +251,24 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('law-search-btn').onclick = async function() {
     const kw = document.getElementById('law-search-input').value.trim();
     if (kw) {
-      const res = await searchLawApi(kw);
-      showSearchResult(res.results);
+      try {
+        const res = await searchLawApi(kw);
+        if (res && res.results) {
+          // 传递整个结果对象，而不只是summary部分
+          showSearchResult(res.results);
+        } else {
+          // 处理无结果的情况
+          console.error('未获取到有效结果数据');
+          document.getElementById('search-result-list').innerHTML = `<div style='color:#bbb;margin-bottom:18px;'>暂无相关法律法规</div>`;
+          document.getElementById('law-card-multi').style.display = 'none';
+          document.getElementById('law-card-search-result').style.display = '';
+        }
+      } catch (error) {
+        console.error('搜索请求失败:', error);
+        document.getElementById('search-result-list').innerHTML = `<div style='color:#bbb;margin-bottom:18px;'>搜索请求失败，请稍后重试</div>`;
+        document.getElementById('law-card-multi').style.display = 'none';
+        document.getElementById('law-card-search-result').style.display = '';
+      }
     } else {
       showDefaultCards();
     }
@@ -199,4 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showFullLawEntry(e.target.parentElement);
     }
   });
+  // ========== 新五张卡片渲染 ========== 
+  const caseData = await fetchCaseCards(true); // 首次加载强制刷新
+  renderCaseCards(caseData);
 }); 
