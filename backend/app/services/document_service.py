@@ -8,13 +8,19 @@ MODEL_CONFIG = {
         'api_key': os.environ.get('QWEN_API_KEY', ''),
         'model': os.environ.get('QWEN_MODEL', 'qwen-plus'),
         'url': os.environ.get('QWEN_URL', 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation'),
-    }
+    },
+    '智谱': {
+            'api_key': os.environ.get('ZHIPU_API_KEY', ''),
+            'model': os.environ.get('ZHIPU_MODEL', 'glm-4'),
+            'url': os.environ.get('ZHIPU_URL', 'https://open.bigmodel.cn/api/paas/v4/chat/completions'),
+        },
+
 }
 
 class DocumentService:
     def __init__(self):
         self.template_service = TemplateService()
-        conf = MODEL_CONFIG['通义千问']
+        conf = MODEL_CONFIG['智谱']
         self.llm = ChatOpenAI(
             model=conf['model'],
             api_key=conf['api_key'],
