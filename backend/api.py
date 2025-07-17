@@ -3,13 +3,15 @@ from backend.app.services.law_search import search_law
 from backend.app.services.ai_chat import ai_legal_qa_function, reset_ai_legal_memory
 from backend.app.services.document_service import DocumentService
 from backend.app.services.smart_contracts import save_upload_file, extract_contract_content, analyze_contract_content_with_llm
+from backend.app.services.case_cards import get_case_cards
 from backend.app.models.legal_doc_models import LawsuitRequest
+from backend.app.services.quiz_service import QuizQuestion, QuizAnswerRequest, QuizAnswerResponse, get_all_questions, check_answer as check_quiz_answer
 from typing import Optional
 from fastapi import UploadFile, File, HTTPException
 import uuid
 from pydantic import BaseModel
 from typing import List
-from backend.app.services.quiz_service import QuizQuestion, QuizAnswerRequest, QuizAnswerResponse, get_all_questions, check_answer as check_quiz_answer
+
 
 router = APIRouter()
 
@@ -21,6 +23,7 @@ document_service = DocumentService()
 #     # 调用 langchain_service 的功能
 #     return some_langchain_function()
 
+#AI懂法
 @router.post("/reset_ai_memory")
 async def reset_ai_memory():
     reset_ai_legal_memory()
@@ -33,7 +36,8 @@ def ai_legal_qa(
 ):
     print(f"接收到的参数: question={question}, model={model}")
     return ai_legal_qa_function(question, model)
-
+    
+#文书生成
 @router.post("/generate_lawsuit")
 def generate_lawsuit(request: LawsuitRequest):
     """
@@ -129,6 +133,7 @@ def generate_defense(request: LawsuitRequest):
 #     from app.services.langchain_service import get_history
 #     return get_history(session_id)
 
+#智能合同
 @router.post("/smart_contracts/upload/")
 async def upload_contract_file(file: UploadFile = File(...)):
     try:
@@ -147,13 +152,16 @@ async def analyze_contract(file: UploadFile = File(...)):
     result = analyze_contract_content_with_llm(content)
     return result
 
+#首页
 @router.post("/law_search")
 def law_search_api(query: str = Body(..., embed=True)):
     results = search_law(query)
     return {"results": results}
+@router.get("/api/case_cards")
+def api_case_cards(force_refresh: bool = False):
+    return get_case_cards(force_refresh=force_refresh)
 
-
-
+#法律答题
 @router.get("/quiz", response_model=List[QuizQuestion])
 def get_quiz():
     return get_all_questions()
@@ -161,3 +169,5 @@ def get_quiz():
 @router.post("/quiz/answer", response_model=QuizAnswerResponse)
 def check_answer(data: QuizAnswerRequest):
     return check_quiz_answer(data.id, data.answer)
+
+
