@@ -19,14 +19,23 @@
 }
 
 html, body {
+<<<<<<< HEAD
   /* height: 100vh;
   min-height: 0; */
+=======
+  height: 100vh;
+  min-height: 0;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 body { 
   margin: 0; 
   font-family: 'Segoe UI', Arial, sans-serif; 
+<<<<<<< HEAD
   background: linear-gradient(135deg, #f8fbff 0%, #fafcff 100%);
+=======
+  background: #f6faff; 
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   height: 100vh; 
   min-height: 0; 
 }
@@ -39,20 +48,32 @@ body {
 }
 
 .sidebar {
+<<<<<<< HEAD
   width: 270px;
+=======
+  width: 300px;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   background: #fff;
   color: #0066cc;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding-top: 0;
+<<<<<<< HEAD
   position: fixed !important;
+=======
+  position: fixed;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   left: 0;
   top: 0;
   bottom: 0;
   height: 100vh;
+<<<<<<< HEAD
   z-index: 1000;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+=======
+  z-index: 2;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .sidebar-header { 
@@ -152,22 +173,34 @@ body {
 
 .main-content {
   flex: 1;
+<<<<<<< HEAD
   background: transparent;
+=======
+  background: #f6faff;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   border-radius: 0;
   padding: 32px;
   box-shadow: none;
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   position: fixed;
   left: 270px;
+=======
+  position: absolute;
+  left: 300px;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   top: 0;
   right: 0;
   bottom: 0;
   height: 100vh;
   min-width: 0;
   min-height: 0;
+<<<<<<< HEAD
   margin-left: 0;
   overflow-y: auto;
+=======
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .home-header { 
@@ -177,11 +210,14 @@ body {
   align-items: center; 
   justify-content: center; 
   text-align: center; 
+<<<<<<< HEAD
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding-left: 10px;
   padding-right: 10px;
+=======
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .home-header h1 { 
@@ -272,6 +308,7 @@ body {
 }
 
 .ai-bottom-bar {
+<<<<<<< HEAD
   width: calc(100% - 270px);
   background: #fff;
   position: fixed;
@@ -279,14 +316,26 @@ body {
   right: 0;
   bottom: 0;
   z-index: 1001;
+=======
+  width: 100%;
+  background: #fff;
+  position: relative;
+  z-index: 10;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   box-sizing: border-box;
   padding: 20px 0 0 0;
+<<<<<<< HEAD
   border-radius: 16px 16px 0 0;
   box-shadow: 0 -2px 8px rgba(111,74,142,0.08);
   margin: 0;
+=======
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(111,74,142,0.08);
+  margin-top: auto;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .chat-bubble { 
@@ -296,45 +345,70 @@ body {
   border-radius: 16px; 
   line-height: 1.8; 
   font-size: 16px; 
+<<<<<<< HEAD
   margin-top: 0;
   margin-bottom: 0;
+=======
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .chat-bubble-wrapper.user {
   justify-content: flex-end;
   margin-bottom: 10px;
+<<<<<<< HEAD
   display: flex;
   align-items: flex-start;
+=======
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 .chat-bubble-wrapper.ai {
   justify-content: flex-start;
   margin-bottom: 10px;
+<<<<<<< HEAD
   display: flex;
   align-items: flex-start;
+=======
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .chat-bubble.user {
   background: #e3f0ff;
   align-self: flex-end;
   color: #155fa0;
+<<<<<<< HEAD
   margin-right: 12px;
+=======
+  margin-left: 40px;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 .chat-bubble.ai {
   background: #fff;
   align-self: flex-start;
   color: #1e3a8a;
+<<<<<<< HEAD
   margin-left: 12px;
+=======
+  margin-right: 40px;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 }
 
 /* 头像样式和内容样式保持不变 */
 .chat-bubble-wrapper.user .chat-avatar {
+<<<<<<< HEAD
   margin-left: 12px;
+=======
+  margin-left: 28px;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   margin-right: 0;
   vertical-align: top;
 }
 .chat-bubble-wrapper.ai .chat-avatar {
+<<<<<<< HEAD
   margin-right: 12px;
+=======
+  margin-right: 28px;
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   margin-left: 0;
   vertical-align: top;
 }
@@ -493,6 +567,7 @@ body {
   background: var(--main-bg); 
 }
 
+<<<<<<< HEAD
 /* 首页法律搜索区和卡片分区样式 */
 .law-search-bar {
   display: flex;
@@ -688,6 +763,8 @@ body {
   }
 }
 
+=======
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
 @media (max-width: 900px) {
   .container { 
     flex-direction: column; 
@@ -726,6 +803,7 @@ body {
 
 .contract-history-float-btn:hover { 
   background: var(--button-hover); 
+<<<<<<< HEAD
 } 
 
 .law-entry {
@@ -1076,3 +1154,6 @@ body {
   max-width: 800px;
   margin: 0 auto;
 }
+=======
+} 
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa

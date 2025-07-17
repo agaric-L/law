@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Python
 __pycache__/
@@ -35,3 +36,10 @@ yarn-error.log*
 # 系统文件
 .DS_Store
 Thumbs.db
+=======
+__pycache__/
+*.pyc
+.idea/
+.env
+.DS_Store
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa

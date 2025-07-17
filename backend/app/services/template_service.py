@@ -4,12 +4,20 @@ from pathlib import Path
 
 class TemplateService:
     def __init__(self):
+<<<<<<< HEAD
         # 兼容 Render 云部署，使用绝对路径
         import os
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         template_path = os.path.join(base_dir, 'template', 'official_templates.json')
         if not os.path.exists(template_path):
             raise FileNotFoundError(f"模板文件不存在：{template_path}")
+=======
+        # 加载官方模板（确保路径正确）
+        template_path = Path(__file__).parent.parent.parent / "template" / "official_templates.json"
+        if not template_path.exists():
+            raise FileNotFoundError(f"模板文件不存在：{template_path}")
+
+>>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
         with open(template_path, "r", encoding="utf-8") as f:
             self.templates = json.load(f)
 
