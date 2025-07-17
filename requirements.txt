@@ -1,0 +1,12 @@
+   fastapi
+   uvicorn
+   pydantic
+   openai
+   qdrant-client
+   python-multipart
+   python-dotenv
+   langchain
+   langchain-community
+   langchain-core
+   langchain-openai
+   #sentence-transformers
