@@ -68,11 +68,7 @@ function sendQuestion() {
   if (!question) return;
   appendChatBubble('user', question);
   input.value = '';
-<<<<<<< HEAD
   fetch('http://127.0.0.1:8000/ai_legal_qa', {
-=======
-  fetch('http://localhost:8000/ai_legal_qa', {
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question, model: currentModel })
@@ -94,7 +90,6 @@ function sendQuestion() {
 
 function appendChatBubble(role, text) {
   const chat = document.getElementById('chatHistory');
-<<<<<<< HEAD
   // 创建外层容器
   const wrapper = document.createElement('div');
   wrapper.className = 'chat-bubble-wrapper ' + role;
@@ -125,22 +120,12 @@ function appendChatBubble(role, text) {
   }
 
   chat.appendChild(wrapper);
-=======
-  const div = document.createElement('div');
-  div.className = 'chat-bubble ' + role;
-  div.innerHTML = text.replace(/\n/g, '<br>');
-  chat.appendChild(div);
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   chat.scrollTop = chat.scrollHeight;
 }
 
 function startNewConversation() {
   document.getElementById('chatHistory').innerHTML = '';
-<<<<<<< HEAD
   fetch('http://127.0.0.1:8000/reset_ai_memory', { method: 'POST' })
-=======
-  fetch('http://localhost:8000/reset_ai_memory', { method: 'POST' })
->>>>>>> e5db59705d7ac3e53137f9b5db64196b88c254fa
   .then(() => {
     // 可以在这里解锁输入框，允许用户输入新问题
   });
