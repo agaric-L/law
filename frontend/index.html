@@ -94,6 +94,13 @@
               <button id="newChatBtn" onclick="startNewConversation()" style="padding: 8px 18px; border-radius: 8px; border: none; background:var(--main-purple); color: #fff; font-size: 15px; cursor: pointer;">创建新对话</button>
               <button id="modelBtn" onclick="toggleModelMenu()" style="padding: 8px 18px; border-radius: 8px; border: none; background: var(--main-purple); color: #fff; font-size: 15px; cursor: pointer;">选择大模型</button>
               <span id="currentModel" style="color: var(--main-purple); font-size: 15px; display: flex; align-items: center; height: 40px;">当前模型：通义千问</span>
+              <!-- 新增模型选择菜单 -->
+              <div id="modelMenu" style="display:none; position:absolute; z-index:100; background:#fff; border:1px solid #eee; border-radius:8px; box-shadow:0 2px 8px #aaa; top:60px; left:320px; min-width:140px;">
+                <div style="padding:10px 20px; cursor:pointer;" onclick="selectModel('通义千问')">通义千问</div>
+                <div style="padding:10px 20px; cursor:pointer;" onclick="selectModel('星火大模型')">星火大模型</div>
+                <div style="padding:10px 20px; cursor:pointer;" onclick="selectModel('deepseek')">deepseek</div>
+                <div style="padding:10px 20px; cursor:pointer;" onclick="selectModel('智谱')">智谱</div>
+              </div>
             </div>
           </div>
           <!-- 原有输入栏等内容 -->
