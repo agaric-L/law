@@ -30,53 +30,53 @@
     </div>
   </aside>
 
-  <!-- 右侧主内容区 -->
-<main class="main-content">
-    <div id="page-home">
-      <div class="home-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0 0 0;">
-        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-          <div class="law-search-tabs">
-            <span style="font-size:36px;font-weight:800;color:#0147a6;">欢迎来到智法云，您的法律守护者</span>
+  -- 右侧主内容区 -->
+  <main class="main-content">
+      <div id="page-home">
+        <div class="home-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0 0 0;">
+          <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div class="law-search-tabs">
+              <span style="font-size:36px;font-weight:800;color:#0147a6;">欢迎来到智法云，您的法律守护者</span>
+            </div>
+            <div class="law-search-bar modern">
+              <input type="text" id="law-search-input" placeholder="请输入您想检索的法律法规" autocomplete="off" />
+              <button id="law-search-btn" style="background:transparent;border:none;border-radius:50%;padding:0 16px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
+                <img src="image/搜索.png" alt="搜索" style="height:36px;width:36px;object-fit:contain;" />
+              </button>
+            </div>
           </div>
-          <div class="law-search-bar modern">
-            <input type="text" id="law-search-input" placeholder="请输入您想检索的法律法规" />
-            <button id="law-search-btn" style="background:transparent;border:none;border-radius:50%;padding:0 16px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
-              <img src="image/搜索.png" alt="搜索" style="height:36px;width:36px;object-fit:contain;" />
-            </button>
+        </div>
+        <div id="law-card-search-result" style="display:none;">
+          <div class="law-card" style="width:100%;max-width:900px;margin:0 auto;">
+            <div class="law-card-title">检索结果</div>
+            <div class="law-card-list" id="search-result-list"></div>
+          </div>
+        </div>
+        <div id="law-card-multi">
+          <div class="case-card-section">
+            <div class="case-card" id="card-criminal">
+              <div class="case-card-title">刑事案件</div>
+              <div class="case-card-list" id="list-criminal"></div>
+            </div>
+            <div class="case-card" id="card-civil">
+              <div class="case-card-title">民事案件</div>
+              <div class="case-card-list" id="list-civil"></div>
+            </div>
+            <div class="case-card" id="card-commercial">
+              <div class="case-card-title">商事案件</div>
+              <div class="case-card-list" id="list-commercial"></div>
+            </div>
+            <div class="case-card" id="card-administrative">
+              <div class="case-card-title">行政/国家赔偿案件</div>
+              <div class="case-card-list" id="list-administrative"></div>
+            </div>
+            <div class="case-card" id="card-environment">
+              <div class="case-card-title">环资案件</div>
+              <div class="case-card-list" id="list-environment"></div>
+            </div>
           </div>
         </div>
       </div>
-      <div id="law-card-search-result" style="display:none;">
-        <div class="law-card" style="width:100%;max-width:900px;margin:0 auto;">
-          <div class="law-card-title">检索结果</div>
-          <div class="law-card-list" id="search-result-list"></div>
-        </div>
-      </div>
-      <div id="law-card-multi">
-        <div class="case-card-section">
-          <div class="case-card" id="card-criminal">
-            <div class="case-card-title">刑事案件</div>
-            <div class="case-card-list" id="list-criminal"></div>
-          </div>
-          <div class="case-card" id="card-civil">
-            <div class="case-card-title">民事案件</div>
-            <div class="case-card-list" id="list-civil"></div>
-          </div>
-          <div class="case-card" id="card-commercial">
-            <div class="case-card-title">商事案件</div>
-            <div class="case-card-list" id="list-commercial"></div>
-          </div>
-          <div class="case-card" id="card-administrative">
-            <div class="case-card-title">行政/国家赔偿案件</div>
-            <div class="case-card-list" id="list-administrative"></div>
-          </div>
-          <div class="case-card" id="card-environment">
-            <div class="case-card-title">环资案件</div>
-            <div class="case-card-list" id="list-environment"></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div id="page-ai" style="display:none;">
       <div class="ai-header" style="position:relative; padding:40px 0 0 0;">
@@ -232,7 +232,164 @@
         </div>
       </div>
     </div>
-    <div id="page-court" style="display:none;"><div style="padding:40px;color:#807b9e;">AI法庭（开发中）</div></div>
+    <div id="page-court" style="display:none;">
+      <div class="court-container">
+        <!-- 顶部流程线 -->
+        <div class="court-process-line">
+          <div class="process-step active" id="step-prepare">
+            <div class="step-circle">1</div>
+            <div class="step-text">开庭前准备</div>
+          </div>
+          <div class="process-line"></div>
+          <div class="process-step" id="step-trial">
+            <div class="step-circle">2</div>
+            <div class="step-text">开庭审理</div>
+          </div>
+          <div class="process-line"></div>
+          <div class="process-step" id="step-end">
+            <div class="step-circle">3</div>
+            <div class="step-text">庭审结束</div>
+          </div>
+        </div>
+        
+        <!-- 开庭前准备页面 -->
+        <div class="court-page" id="court-prepare">
+          <div class="court-form-container">
+            <h2>案件信息填写</h2>
+            <div class="court-form-section">
+              <h3>选择角色</h3>
+              <div class="role-selection">
+                <label>
+                  <input type="radio" name="role" value="plaintiff" checked>
+                  <span>原告</span>
+                </label>
+                <label>
+                  <input type="radio" name="role" value="defendant">
+                  <span>被告</span>
+                </label>
+  
+              </div>
+            </div>
+            
+            <div class="court-form-section">
+              <h3>案件类型</h3>
+              <div class="case-type-selection">
+                <label>
+                  <input type="radio" name="case-type" value="loan" checked>
+                  <span>借贷纠纷</span>
+                </label>
+                <label>
+                  <input type="radio" name="case-type" value="tort">
+                  <span>侵权纠纷</span>
+                </label>
+                <label>
+                  <input type="radio" name="case-type" value="contract">
+                  <span>合同纠纷</span>
+                </label>
+                <label>
+                  <input type="radio" name="case-type" value="other">
+                  <span>其他</span>
+                </label>
+                <input type="text" id="other-case-type" placeholder="请输入案件类型" style="display:none;">
+              </div>
+            </div>
+            
+            <div class="court-form-section">
+              <h3>案情简述</h3>
+              <textarea id="case-summary" placeholder="请简要描述案件情况..."></textarea>
+            </div>
+            
+            <div class="court-form-section" id="plaintiff-form">
+              <h3>原告信息</h3>
+              <div class="form-group">
+                <label>诉讼请求：</label>
+                <textarea id="plaintiff-claim" placeholder="请输入诉讼请求..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>事实和理由：</label>
+                <textarea id="plaintiff-reason" placeholder="请输入事实和理由..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>起诉证据：</label>
+                <div class="evidence-upload">
+                  <button type="button" class="file-upload-btn" id="plaintiff-evidence-file-btn">选择文件</button>
+                  <input type="file" id="plaintiff-evidence-file" multiple style="display:none;">
+                  <span class="or-text">或</span>
+                  <button id="plaintiff-evidence-text-btn" class="text-evidence-btn">文字描述</button>
+                </div>
+                <textarea id="plaintiff-evidence-text" placeholder="请输入证据描述..." style="display:none;"></textarea>
+                <div id="plaintiff-evidence-list" class="evidence-list"></div>
+              </div>
+            </div>
+            
+            <div class="court-form-section" id="defendant-form">
+              <h3>被告信息</h3>
+              <div class="form-group">
+                <label>答辩意见：</label>
+                <textarea id="defendant-opinion" placeholder="请输入答辩意见..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>事实和理由：</label>
+                <textarea id="defendant-reason" placeholder="请输入事实和理由..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>反驳证据：</label>
+                <div class="evidence-upload">
+                  <button type="button" class="file-upload-btn" id="plaintiff-evidence-file-btn">选择文件</button>
+                  <input type="file" id="plaintiff-evidence-file" multiple style="display:none;">
+                  <span class="or-text">或</span>
+                  <button id="plaintiff-evidence-text-btn" class="text-evidence-btn">文字描述</button>
+                </div>
+                <textarea id="defendant-evidence-text" placeholder="请输入证据描述..." style="display:none;"></textarea>
+                <div id="defendant-evidence-list" class="evidence-list"></div>
+              </div>
+            </div>
+            
+            <div class="court-form-actions" style="margin-bottom: 16px;">
+              <button id="quick-fill-btn" class="primary-btn" type="button" style="background:#e3f0ff;color:#155fa0;margin-bottom:12px;">一键填写示例</button>
+            </div>
+            <div class="court-form-actions">
+              <button id="start-trial-btn" class="primary-btn">开始庭审</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 开庭审理页面 -->
+        <div class="court-page" id="court-trial" style="display:none;">
+          <div class="court-trial-container">
+            <div class="court-left-panel">
+              <img src="image/法庭.png" alt="法庭" class="court-image">
+              <div class="case-info-panel">
+                <h3>案件信息</h3>
+                <div id="trial-case-info"></div>
+              </div>
+            </div>
+            <div class="court-chat-panel">
+              <div class="court-chat-history" id="court-chat-history"></div>
+              <div class="court-chat-input">
+                <textarea id="court-message-input" placeholder="输入您的发言..."></textarea>
+                <button id="send-court-message-btn">发送</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 庭审结束页面 -->
+        <div class="court-page" id="court-end" style="display:none;">
+          <div class="court-judgment-container">
+            <div class="judgment-header">
+              <h2>判决书</h2>
+              <div class="judgment-meta" id="judgment-meta"></div>
+            </div>
+            <div class="judgment-content" id="judgment-content"></div>
+            <div class="judgment-actions">
+              <button id="save-judgment-btn" class="primary-btn">保存为PDF</button>
+              <button id="new-trial-btn" class="secondary-btn">开始新庭审</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -243,5 +400,6 @@
 <script src="js/document.js"></script>
 <script src="js/html2pdf.bundle.min.js"></script>
 <script src="js/quiz.js"></script>
+<script src="js/court.js"></script>
 </body>
-</html> 
+</html>
