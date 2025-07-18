@@ -9,7 +9,7 @@ class UserInfo(BaseModel):
     contact: str = Field(..., description="联系方式")
 
 class CaseInfo(BaseModel):
-    case_type: Literal["民间借贷", "离婚纠纷", "其他"] = Field(..., description="案件类型")
+    case_type: str = Field(..., description="案件类型")
     facts: str = Field(..., description="案件事实描述")
     legal_basis: str = Field(None, description="法律依据")
 
