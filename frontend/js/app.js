@@ -48,13 +48,19 @@ function hideFullLawEntry(entry) {
 // 搜索联动后端/law_search
 async function searchLawApi(query) {
   console.log("***************");
-  const resp = await fetch('http://localhost:8000/law_search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query })
-  });
-  console.log(resp);
-  return await resp.json();
+  const loadingDiv = document.getElementById('search-loading-indicator');
+  if (loadingDiv) loadingDiv.style.display = '';
+  try {
+    const resp = await fetch('http://localhost:8000/law_search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query })
+    });
+    console.log(resp);
+    return await resp.json();
+  } finally {
+    if (loadingDiv) loadingDiv.style.display = 'none';
+  }
 }
 function showSearchResult(results) {
   document.getElementById('law-card-multi').style.display = 'none';
@@ -62,18 +68,46 @@ function showSearchResult(results) {
   const list = document.getElementById('search-result-list');
   list.innerHTML = '';
 
+  // 移除旧的返回首页按钮（避免重复）
+  const oldBtn = document.getElementById('back-to-home-btn');
+  if (oldBtn) oldBtn.remove();
+
+  // 让返回首页按钮左侧与卡片左侧对齐，宽度自适应
+  const lawCardSearchResult = document.getElementById('law-card-search-result');
+  const lawCard = lawCardSearchResult.querySelector('.law-card');
+  if (lawCardSearchResult && lawCard && !document.getElementById('back-to-home-btn')) {
+    const btn = document.createElement('button');
+    btn.id = 'back-to-home-btn';
+    btn.innerText = '返回首页';
+    // 计算卡片的margin-left
+    const cardStyle = window.getComputedStyle(lawCard);
+    const cardMarginLeft = cardStyle.marginLeft || '0px';
+    btn.style = `margin: 8px 0 8px ${cardMarginLeft}; background: #81021f; color: #fff; border: none; border-radius: 8px; padding: 8px 28px; font-size: 16px; font-weight: 600; cursor: pointer; display: block;`;
+    btn.onclick = function() {
+      document.getElementById('law-search-input').value = '';
+      showDefaultCards();
+      document.getElementById('law-card-search-result').style.display = 'none';
+      btn.remove();
+    };
+    lawCardSearchResult.parentElement.insertBefore(btn, lawCardSearchResult);
+  }
+
   // 优先渲染raw_results
   let laws = [];
+  let cases = [];
   // 检查多种可能的数据结构
   if (Array.isArray(results?.raw_results) && results.raw_results.length) {
     laws = results.raw_results.filter(item => item.type === 'law');
+    cases = results.raw_results.filter(item => item.type === 'case');
   } else if (Array.isArray(results?.summary?.laws)) {
     laws = results.summary.laws;
+    cases = results.summary.cases || [];
   } else if (results?.laws && Array.isArray(results.laws)) {
     laws = results.laws;
+    cases = results.cases || [];
   }
 
-      // 渲染法律法规区
+  // 渲染法律法规区
   if (laws.length) {
     // 重新处理法条内容，保证每个条目只显示自己的内容
     const processedLaws = [];
@@ -162,6 +196,26 @@ function showSearchResult(results) {
   } else {
     list.innerHTML += `<div style='color:#bbb;margin-bottom:18px;'>暂无相关法律法规</div>`;
   }
+
+  // 渲染相关案例区
+  if (cases.length) {
+    list.innerHTML += `<div style='font-size:17px;font-weight:700;color:#0147a6;margin:32px 0 12px 0;'>相关案例</div>`;
+    cases.forEach((item, idx) => {
+      let title = item.title || item.name || '';
+      let content = '';
+      if (item.details && Array.isArray(item.details)) {
+        content = item.details.join('\n');
+      } else if (item.content) {
+        content = item.content;
+      } else if (item.detail) {
+        content = item.detail;
+      }
+      list.innerHTML += `<div style='margin-bottom:0;padding:18px 0;${idx !== 0 ? "border-top:1px dashed #bbb;" : ''}'>
+        <div style='font-size:16px;font-weight:600;line-height:1.5;margin-bottom:8px;'>${title}</div>
+        <div style='color:#444;font-size:15px;line-height:1.9;font-weight:normal;white-space:pre-line;'>${content}</div>
+      </div>`;
+    });
+  }
 }
 
 
@@ -170,6 +224,9 @@ function showSearchResult(results) {
 function showDefaultCards() {
   document.getElementById('law-card-multi').style.display = '';
   document.getElementById('law-card-search-result').style.display = 'none';
+  // 移除返回首页按钮（防止重复出现）
+  const oldBtn = document.getElementById('back-to-home-btn');
+  if (oldBtn) oldBtn.remove();
 }
 
 async function fetchCaseCards(forceRefresh = false) {
@@ -296,3 +353,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   const caseData = await fetchCaseCards(true); // 首次加载强制刷新
   renderCaseCards(caseData);
 }); 
+  document.getElementById('plaintiff-evidence-file-btn').onclick = function() {
+    document.getElementById('plaintiff-evidence-file').click();
+  };
