@@ -67,6 +67,20 @@ def generate_explanation(question, options, correct_answer):
     else:
         return str(result)
 
+def generate_explanation_stream(question, options, correct_answer):
+    prompt = f"请为以下法律选择题生成详细的纯文本解析（不要超过250字）：\n题目：{question}\n选项：{options}\n正确答案：{options[correct_answer]}"
+    conf = MODEL_CONFIG['智谱']
+    llm = ChatOpenAI(
+        model=conf['model'],
+        base_url=conf['url'],
+        api_key=SecretStr(conf['api_key']),
+        temperature=0.2,
+        stream=True
+    )
+    messages = [HumanMessage(content=prompt)]
+    for chunk in llm.stream(messages):
+        yield chunk.content
+
 def get_random_question():
     q = random.choice(_questions)
     return QuizQuestion(id=q['id'], question=q['question'], options=q['options'])

@@ -145,3 +145,23 @@ def analyze_contract_content_with_llm(content: str, model: str = "通义千问")
     if not std:
         return {"analysis": {"原始内容": result}}
     return {"analysis": std}
+
+def analyze_contract_content_with_llm_stream(content: str, model: str = "通义千问"):
+    """流式调用大模型分析合同内容，返回结构化结果，逐步yield内容"""
+    prompt = f"请分析以下合同内容，并以如下标准JSON格式返回：\n\n{content}\n\n返回格式示例：\n{{\n  \"合同摘要\": \n  \"潜在风险条款\": \n}}\n字段全部用中文，且不要返回markdown、代码块或字符串化JSON。注意：不要照搬示例，必须基于实际合同内容分析，请勿直接返回示例内容"
+
+    model_key = model.lower()
+    if model_key not in MODEL_CONFIG:
+        raise ValueError(f"暂不支持的模型: {model}")
+    conf = MODEL_CONFIG[model_key]
+    llm = ChatOpenAI(
+        model=conf['model'],
+        base_url=conf['url'],
+        api_key=conf['api_key'],
+        temperature=0.2,
+        max_tokens=1024,
+        stream=True
+    )
+    messages = [HumanMessage(content=prompt)]
+    for chunk in llm.stream(messages):
+        yield chunk.content

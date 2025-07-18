@@ -54,3 +54,23 @@ class DocumentService:
         except Exception as e:
             print(f"Error generating legal document: {e}")
             return ""
+
+    def generate_legal_doc_stream(self, doc_type: str, user_input: Dict):
+        """流式生成法律文书（纯文本格式，无Markdown）"""
+        try:
+            print(f"流式生成文书类型: {doc_type}, 用户输入: {user_input}")
+            prompt = self.template_service.build_prompt(doc_type, user_input)
+            print(f"生成的prompt: {prompt}")
+            messages = [
+                ("system", "你是专业法律文书生成助手，生成的文书必须是纯文本格式，绝对不能包含任何Markdown标记（如**、#、[]、`等），严格遵循中国法律规范和官方模板的文本格式。"),
+                ("human", prompt)
+            ]
+            # 流式调用模型
+            full_content = ''
+            for chunk in self.llm.stream(messages):
+                delta = chunk.content
+                full_content += delta
+                yield delta
+        except Exception as e:
+            print(f"Error generating legal document (stream): {e}")
+            yield f"[文书生成出错: {e}]"

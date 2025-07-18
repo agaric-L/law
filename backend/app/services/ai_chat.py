@@ -40,16 +40,23 @@ def reset_ai_legal_memory():
         del ai_legal_qa_function.memory
 
 
-def ai_legal_qa_function(question: str, model: str = 'qwen') -> dict:
-    print("memory id:", id(ai_legal_qa_function.memory) if hasattr(ai_legal_qa_function, 'memory') else "no memory")
+import re
+
+def clean_markdown(text):
+    # 去除**、__、`等常见Markdown标记
+    return re.sub(r'(\*\*|__|`)', '', text)
+
+
+def ai_legal_qa_function_stream(question: str, model: str = 'qwen'):
+    print("memory id:", id(ai_legal_qa_function_stream.memory) if hasattr(ai_legal_qa_function_stream, 'memory') else "no memory")
     # 静态变量/全局变量，保证多轮对话记忆
-    if not hasattr(ai_legal_qa_function, 'memory'):
-        ai_legal_qa_function.memory = ConversationBufferMemory(return_messages=True)
-    memory = ai_legal_qa_function.memory
+    if not hasattr(ai_legal_qa_function_stream, 'memory'):
+        ai_legal_qa_function_stream.memory = ConversationBufferMemory(return_messages=True)
+    memory = ai_legal_qa_function_stream.memory
 
     # 构建prompt
     system_prompt = (
-        "你作为专业法律助手，严格参考用户的历史提问，结合历史问题的关键词，再结合当前问题，严格按照以下格式分四部分输出：\n"
+        "你作为专业法律助手，严格参考用户的历史提问，结合历史问题的关键词，再结合当前问题，严格按照以下格式分四部分纯文本输出：\n"
         "1. 法律条文依据：\n[在这里详细列出相关的法律条文和依据]\n\n"
         "2. 参考案例：\n[在这里提供相关的参考案例]\n\n"
         "3. 实际解决办法：\n[在这里提供具体的解决步骤和建议]\n"
@@ -65,28 +72,23 @@ def ai_legal_qa_function(question: str, model: str = 'qwen') -> dict:
         base_url=conf['url'],
         api_key=conf['api_key'],
         temperature=0.2,
-        max_tokens=1024
+        max_tokens=1024,
+        stream=True
     )
 
     # 获取历史对话
     chat_history = memory.load_memory_variables({})['history']
     # 组装messages
-    messages = []
-    for msg in chat_history:
-        if isinstance(msg, str):
-            messages.append(HumanMessage(content=msg))
-        else:
-            messages.append(msg)
-
     messages = [SystemMessage(content=system_prompt)] + chat_history + [HumanMessage(content=question)]
-    response = response = llm.invoke(messages)
-    answer = response.content.strip()
-
-    # 追加本轮用户输入
-    memory.save_context({"input": question}, {"output": answer})
+    full_answer = ''
+    for chunk in llm.stream(messages):
+        delta = clean_markdown(chunk.content)
+        full_answer += delta
+        yield delta
+    # 追加本轮用户输入到记忆
+    memory.save_context({"input": question}, {"output": full_answer})
 
     # 自动分段解析
-    import re
     def parse_answer(ans):
         law, case, solution, summary = '', '', '', ''
         # 优化分割逻辑，兼容更多格式
@@ -151,8 +153,10 @@ def ai_legal_qa_function(question: str, model: str = 'qwen') -> dict:
 
     def clean_text(text):
         import re
-        # 去除markdown标题、粗体、列表等符号
-        text = re.sub(r'[#*`>\-]+', '', text)
+        # 去除**、__、`等常见Markdown标记
+        text = re.sub(r'(\\*\\*|__|`)', '', text)
+        # 去除每行开头的“- ”（短横线+空格）
+        text = re.sub(r'^-\\s+', '', text, flags=re.MULTILINE)
         # 去除AI返回的JSON片段和usage等调试信息
         text = re.sub(r'\{\s*"total_tokens"[\s\S]*?\}', '', text)
         text = re.sub(r'"usage"[\s\S]*?\}', '', text)
@@ -168,11 +172,11 @@ def ai_legal_qa_function(question: str, model: str = 'qwen') -> dict:
         text = re.sub(r'"[}}\]\]},,]+$', '', text)
         return text
 
-    law, case, solution, summary = map(clean_text, parse_answer(answer))
+    law, case, solution, summary = map(clean_text, parse_answer(full_answer))
     return {
         'law': law,
         'case': case,
         'solution': solution,
         'summary': summary,
-        'history': chat_history + [HumanMessage(content=question), SystemMessage(content=answer)]
+        'history': chat_history + [HumanMessage(content=question), SystemMessage(content=full_answer)]
     }
