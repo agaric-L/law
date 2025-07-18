@@ -62,30 +62,49 @@ function selectModel(model) {
   document.getElementById('modelMenu').style.display = 'none';
 }
 
-function sendQuestion() {
+async function sendQuestion() {
   const input = document.getElementById('userInput');
   const question = input.value.trim();
   if (!question) return;
   appendChatBubble('user', question);
   input.value = '';
-  fetch('http://127.0.0.1:8000/ai_legal_qa', {
+
+  // 新增流式fetch
+  const chat = document.getElementById('chatHistory');
+  // 先插入一个空的AI气泡
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-bubble-wrapper ai';
+  const avatar = document.createElement('img');
+  avatar.className = 'chat-avatar';
+  avatar.src = 'image/律师.png';
+  avatar.alt = '律师头像';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ai';
+  bubble.innerHTML = '';
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(bubble);
+  chat.appendChild(wrapper);
+  chat.scrollTop = chat.scrollHeight;
+
+  // fetch流式
+  const response = await fetch('http://127.0.0.1:8000/ai_legal_qa/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question, model: currentModel })
-  })
-  .then(res => res.json())
-  .then(data => {
-    const answer =
-      `<strong>法律条文依据：</strong><br>${data.law}<br><br>` +
-      `<strong>参考案例：</strong><br>${data.case}<br><br>` +
-      `<strong>实际解决办法：</strong><br>${data.solution}<br><br>`+
-      `<strong>总结回答：</strong><br>${data.summary}`;
-    appendChatBubble('ai', answer);
-    addToHistory({ question, answer: data });
-  })
-  .catch(() => {
-    appendChatBubble('ai', '抱歉，服务器暂时无法响应。');
   });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let result = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const text = decoder.decode(value, { stream: true });
+    result += text;
+    bubble.innerHTML = result.replace(/\n/g, '<br>');
+    chat.scrollTop = chat.scrollHeight;
+  }
+  // 可选：流式结束后，保存历史
+  addToHistory({ question, answer: result });
 }
 
 function appendChatBubble(role, text) {

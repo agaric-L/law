@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtn.textContent = '加载中...';
     submitBtn.disabled = true;
     try {
+      // 先请求是否正确
       const res = await fetch('http://127.0.0.1:8000/quiz/answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,17 +70,30 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       const data = await res.json();
       if (data.correct) {
-        answerBox.textContent = '回答正确！';
+        answerBox.textContent = '回答正确！\n解析：';
       } else {
-        answerBox.textContent = `回答错误，正确答案是：${currentQuestion.options[data.correct_answer]}`;
+        answerBox.textContent = `回答错误，正确答案是：${currentQuestion.options[data.correct_answer]}\n解析：`;
       }
-      if (data.explanation) {
-        answerBox.textContent += `\n解析：${data.explanation}`;
+      // 再流式请求解析
+      const streamRes = await fetch('http://127.0.0.1:8000/quiz/answer/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: currentQuestion.id, answer: selected })
+      });
+      const reader = streamRes.body.getReader();
+      const decoder = new TextDecoder();
+      let explanation = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value, { stream: true });
+        explanation += text;
+        answerBox.textContent = answerBox.textContent.split('解析：')[0] + '解析：' + explanation;
       }
     } finally {
-    submitBtn.textContent = originalText;
-    submitBtn.disabled = false;
-  }
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
   };
 
   // 右下角折角点击加载下一题

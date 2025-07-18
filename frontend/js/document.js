@@ -336,7 +336,7 @@ function parseUserInput(text) {
       contact: ''
     },
     case_info: {
-      case_type: '民间借贷',
+      case_type: '', // 默认不指定类型
       facts: text,
       legal_basis: ''
     },
@@ -391,17 +391,10 @@ function parseUserInput(text) {
   }
   
   // 根据案件类型生成诉讼请求
-  if(info.case_info.case_type === '民间借贷') {
-    info.claims = [
-      '判令被告偿还借款本金及利息',
-      '判令被告承担本案诉讼费用'
-    ];
-  } else {
     info.claims = [
       '判令被告承担相应法律责任',
       '判令被告承担本案诉讼费用'
     ];
-  }
   
   return info;
 }
@@ -413,26 +406,20 @@ async function generateDocument(docType) {
     alert('找不到输入框');
     return;
   }
-  
   const userInput = textarea.value.trim();
   if(!userInput) {
     alert('请先输入案件描述');
     return;
   }
-  
   try {
-    // 显示加载状态
     const generateBtn = docType === '民事起诉状' ? document.getElementById('lawsuitBtn') : document.getElementById('defenseBtn');
     if(generateBtn) {
       generateBtn.textContent = '生成中...';
       generateBtn.disabled = true;
     }
-    
-    // 解析用户输入
     const parsedInfo = parseUserInput(userInput);
-    
-    // 调用API
-    const endpoint = docType === '民事起诉状' ? '/generate_lawsuit' : '/generate_defense';
+    // 流式接口
+    const endpoint = docType === '民事起诉状' ? '/generate_lawsuit/stream' : '/generate_defense/stream';
     const response = await fetch(`http://localhost:8000${endpoint}`, {
       method: 'POST',
       headers: {
@@ -440,33 +427,39 @@ async function generateDocument(docType) {
       },
       body: JSON.stringify(parsedInfo)
     });
-    
-    if(!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // 流式读取
+    const popup = document.getElementById('documentPopup');
+    const contentDiv = document.getElementById('documentContent');
+    let content = '';
+    if(popup && contentDiv) {
+      popup.style.display = 'flex';
+      contentDiv.innerHTML = '';
+      contentDiv.style.whiteSpace = 'pre-wrap';
+      contentDiv.style.wordWrap = 'break-word';
+      contentDiv.style.lineHeight = '1.8';
+      contentDiv.style.fontFamily = 'SimSun, 宋体, serif';
+      contentDiv.style.fontSize = '14px';
     }
-    
-    const data = await response.json();
-    
-    if(data.success) {
-      // 保存历史
-      addDocumentHistory({
-        docType: docType,
-        content: data.content,
-        userInput: userInput
-      });
-      renderDocumentHistory();
-      
-      // 显示结果
-      showDocumentPopup(data.content, docType);
-    } else {
-      throw new Error(data.error || '生成失败');
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const text = decoder.decode(value, { stream: true });
+      content += text;
+      if(contentDiv) contentDiv.innerHTML = content.replace(/\n/g, '<br>');
     }
-    
+    // 保存历史
+    addDocumentHistory({
+      docType: docType,
+      content: content,
+      userInput: userInput
+    });
+    renderDocumentHistory();
   } catch(error) {
     console.error('生成文书失败:', error);
     alert('生成文书失败，请稍后重试。错误信息：' + error.message);
   } finally {
-    // 恢复按钮状态
     const generateBtn = docType === '民事起诉状' ? document.getElementById('lawsuitBtn') : document.getElementById('defenseBtn');
     if(generateBtn) {
       generateBtn.textContent = docType;

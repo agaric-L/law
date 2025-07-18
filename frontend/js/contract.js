@@ -268,28 +268,30 @@ function initContract() {
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
 
-            const res = await fetch('http://127.0.0.1:8000/smart_contracts/analyze_contract/', {
+            // 改为流式接口
+            const res = await fetch('http://127.0.0.1:8000/smart_contracts/analyze_contract/stream', {
               method: 'POST',
               body: formData
             });
-            
-            if (!res.ok) {
-              throw new Error(`HTTP error! status: ${res.status}`);
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let result = '';
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const text = decoder.decode(value, { stream: true });
+              result += text;
+              showContractReviewPopup(result);
             }
-            
-            const data = await res.json();
-            const analysis = data.analysis || {};
-            const suggestion = analysis.raw || JSON.stringify(analysis, null, 2);
 
         // 保存历史
         addContractHistory({
           filename: uploadText.innerText.replace('已上传：',''), 
-          suggestion: suggestion
+          suggestion: result
         });
         renderContractHistory();
-        
         // 显示弹出页面
-        showContractReviewPopup(suggestion);
+        showContractReviewPopup(result);
       } catch (error) {
         console.error('分析失败:', error);
         const errorMsg = '服务器暂时无法响应，请稍后重试。';
