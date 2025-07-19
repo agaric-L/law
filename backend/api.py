@@ -7,13 +7,18 @@ from backend.app.services.smart_contracts import save_upload_file, extract_contr
 from backend.app.services.case_cards import get_case_cards
 from backend.app.models.legal_doc_models import LawsuitRequest
 from backend.app.services.quiz_service import QuizQuestion, QuizAnswerRequest, QuizAnswerResponse, get_all_questions, check_answer as check_quiz_answer, generate_explanation_stream
-from typing import Optional
+from typing import Optional,Dict
 from fastapi import UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
 import uuid
 from pydantic import BaseModel
 from typing import List
 
+#合同新增
+from backend.app.services.smart_contracts import MODEL_CONFIG
+from backend.app.services.smart_contracts import ChatOpenAI, HumanMessage
+from backend.app.services.smart_contracts import identify_contract_type, assess_risk_level
+from datetime import datetime
 
 router = APIRouter()
 
@@ -232,22 +237,40 @@ async def upload_contract_file(file: UploadFile = File(...)):
 
 @router.post("/smart_contracts/analyze_contract/")
 async def analyze_contract(file: UploadFile = File(...)):
-    # 保存文件
-    file_id, file_path = save_upload_file(file, upload_dir="documents")
-    # 提取内容
-    content = extract_contract_content(file_path)
-    # 调用大模型分析
-    result = analyze_contract_content_with_llm(content)
-    return result
+    # # 保存文件
+    # file_id, file_path = save_upload_file(file, upload_dir="documents")
+    # # 提取内容
+    # content = extract_contract_content(file_path)
+    # # 调用大模型分析
+    # result = analyze_contract_content_with_llm(content)
+    # return result
 
-@router.post("/smart_contracts/analyze_contract/stream")
-async def analyze_contract_stream(file: UploadFile = File(...)):
-    file_id, file_path = save_upload_file(file, upload_dir="documents")
-    content = extract_contract_content(file_path)
-    def event_stream():
-        for chunk in analyze_contract_content_with_llm_stream(content):
-            yield chunk
-    return StreamingResponse(event_stream(), media_type="text/plain")
+    """增强版合同分析接口"""
+    try:
+        # 保存文件
+        file_id, file_path = save_upload_file(file, upload_dir="documents")
+        
+        # 提取内容
+        content = extract_contract_content(file_path)
+        
+        # 调用大模型分析
+        result = analyze_contract_content_with_llm(content)
+        
+        # 添加分析元信息
+        result["meta"] = {
+            "file_name": file.filename,
+            "file_size": len(content),
+            "analysis_time": datetime.now().isoformat(),
+            "model_used": "通义千问"
+        }
+        
+        return result
+
+    except Exception as e:
+        return {
+            "error": f"分析失败: {str(e)}",
+            "disclaimer": "本分析仅供参考，具体问题请咨询专业律师"
+        }
 
 #首页
 @router.post("/law_search")
