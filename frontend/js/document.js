@@ -75,6 +75,98 @@ function showDocumentPopup(content, docType) {
     // 重置用户输入状态
     hasUserInput = false;
     
+    // 绑定保存PDF事件 - 确保每次打开弹窗都重新绑定
+    if (saveBtn) {
+      saveBtn.onclick = async function() {
+        try {
+          // 检查html2pdf是否可用
+          if (typeof html2pdf === 'undefined') {
+            alert('PDF生成库未加载，请刷新页面重试');
+            return;
+          }
+
+          const element = document.getElementById('documentContent');
+          if (!element) {
+            alert('找不到文档内容');
+            return;
+          }
+
+          // 显示加载提示
+          const originalText = saveBtn.textContent;
+          saveBtn.textContent = '正在生成PDF...';
+          saveBtn.disabled = true;
+
+          // 获取文档内容
+          const content = element.innerText || element.textContent || '';
+          
+          if (!content.trim()) {
+            alert('文档内容为空，无法生成PDF');
+            return;
+          }
+
+          // 创建PDF容器
+          const pdfContainer = document.createElement('div');
+          pdfContainer.style.cssText = `
+            padding: 20px;
+            font-family: 'SimSun', '宋体', serif;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #000;
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: visible;
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+          `;
+          pdfContainer.innerHTML = content.replace(/\n/g, '<br>');
+
+          // 添加到body中
+          document.body.appendChild(pdfContainer);
+
+          // PDF配置
+          const opt = {
+            margin: [15, 15, 15, 15],
+            filename: '法律文书.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff'
+            },
+            jsPDF: { 
+              unit: 'mm', 
+              format: 'a4', 
+              orientation: 'portrait'
+            }
+          };
+
+          // 生成PDF
+          await html2pdf().set(opt).from(pdfContainer).save();
+          alert('PDF生成成功！');
+
+        } catch (e) {
+          console.error('PDF生成失败:', e);
+          alert('PDF生成失败，请重试。错误信息：' + e.message);
+        } finally {
+          // 恢复按钮状态
+          saveBtn.textContent = originalText;
+          saveBtn.disabled = false;
+          
+          // 清理临时元素
+          const pdfContainer = document.querySelector('div[style*="210mm"]');
+          if (pdfContainer && document.body.contains(pdfContainer)) {
+            document.body.removeChild(pdfContainer);
+          }
+        }
+      };
+    }
+    
     // 添加点击事件监听器，根据用户输入状态决定光标位置
     contentDiv.addEventListener('click', function(e) {
       // 延迟设置光标位置，确保在点击事件处理完成后执行
@@ -155,85 +247,6 @@ function showDocumentPopup(content, docType) {
         }
       }, 10);
     }, { once: true }); // 只绑定一次，避免重复绑定
-  }
-  // 绑定保存PDF事件
-  if (saveBtn) {
-    saveBtn.onclick = async function() {
-      try {
-        const element = document.getElementById('documentContent');
-        
-        // 创建一个临时的PDF容器，确保样式正确
-        const pdfContainer = document.createElement('div');
-        pdfContainer.style.cssText = `
-          padding: 20px;
-          font-family: 'SimSun', '宋体', serif;
-          font-size: 14px;
-          line-height: 1.8;
-          color: #000;
-          background: white;
-          width: 210mm;
-          min-height: 297mm;
-          margin: 0;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          overflow: visible;
-        `;
-        pdfContainer.innerHTML = element.innerHTML;
-        
-        // 将临时容器添加到body中，确保样式正确应用
-        document.body.appendChild(pdfContainer);
-        
-        // 用 html2pdf 导出，支持中文
-        const opt = {
-          margin: [15, 15, 15, 15], // 上右下左边距，单位mm
-          filename: '法律文书.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0,
-            width: 210 * 2.83465, // A4宽度转换为像素
-            height: 297 * 2.83465  // A4高度转换为像素
-          },
-          jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait',
-            compress: true,
-            precision: 16
-          },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-        
-        // 显示加载提示
-        const originalText = saveBtn.textContent;
-        saveBtn.textContent = '正在生成PDF...';
-        saveBtn.disabled = true;
-        
-        try {
-          await html2pdf().set(opt).from(pdfContainer).save();
-          alert('PDF生成成功！');
-        } catch (e) {
-          console.error('导出PDF出错', e);
-          alert('PDF导出失败，请重试。错误信息：' + e.message);
-        } finally {
-          // 恢复按钮状态
-          saveBtn.textContent = originalText;
-          saveBtn.disabled = false;
-          
-          // 清理临时元素
-          if (document.body.contains(pdfContainer)) {
-            document.body.removeChild(pdfContainer);
-          }
-        }
-      } catch (e) {
-        console.error('PDF生成初始化失败:', e);
-        alert('PDF生成失败，请重试');
-      }
-    };
   }
 }
 
@@ -449,6 +462,10 @@ async function generateDocument(docType) {
       content += text;
       if(contentDiv) contentDiv.innerHTML = content.replace(/\n/g, '<br>');
     }
+    
+    // 调用showDocumentPopup来正确显示弹窗并绑定PDF保存事件
+    showDocumentPopup(content, docType);
+    
     // 保存历史
     addDocumentHistory({
       docType: docType,
