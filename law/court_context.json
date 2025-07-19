@@ -1,0 +1,14 @@
+{
+  "case_info": {
+    "case_title": "原告与被告因借款发生纠纷，被告未按约定归还借款，现提起诉讼。",
+    "plaintiff_name": "原告",
+    "defendant_name": "被告",
+    "case_type": "借贷纠纷",
+    "plaintiff_claim": "请求判令被告归还借款本金10万元及利息。",
+    "plaintiff_reason": "原告与被告签订借款协议，原告已履行出借义务，被告未按约定还款，依法应承担还款责任。",
+    "defendant_response": "不同意原告诉讼请求，请求法院驳回。"
+  },
+  "evidence_list": [],
+  "trial_records": [],
+  "current_phase": "开庭"
+}
