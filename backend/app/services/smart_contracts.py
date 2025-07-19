@@ -1,9 +1,11 @@
 import os
 import json
+import re
 from uuid import uuid4
 from typing import Dict, List
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
 from langchain_core.messages import HumanMessage
+from pydantic import SecretStr
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -15,6 +17,27 @@ os.makedirs(DOC_DIR, exist_ok=True)
 
 import os
 from langchain_openai import ChatOpenAI
+
+# 全局工具函数
+def try_json_loads(s):
+    try:
+        return json.loads(s)
+    except Exception:
+        return None
+
+def extract_json_str(s):
+    s = s.strip()
+    match = re.search(r'```json([\s\S]*?)```', s)
+    if match:
+        return match.group(1).strip()
+    match = re.search(r'```([\s\S]*?)```', s)
+    if match:
+        return match.group(1).strip()
+    match = re.search(r'({[\s\S]*})', s)
+    if match:
+        return match.group(1).strip()
+    return s
+
 #智能合同只用通义千问就行
 MODEL_CONFIG = {
     '通义千问': {
@@ -60,44 +83,86 @@ def extract_contract_content(file_path: str) -> str:
     content = "\n".join([doc.page_content for doc in docs])
     return content
 
+def identify_contract_type(content: str) -> str:
+    """识别合同类型，为分析提供上下文"""
+    contract_keywords = {
+        "借贷合同": ["借款", "贷款", "利息", "还款", "本金"],
+        "租赁合同": ["租赁", "租金", "租期", "押金", "房屋"],
+        "买卖合同": ["买卖", "销售", "购买", "价款", "交付"],
+        "劳动合同": ["工作", "工资", "社保", "试用期", "解除"],
+        "服务合同": ["服务", "费用", "期限", "质量", "标准"]
+    }
+    
+    content_lower = content.lower()
+    for contract_type, keywords in contract_keywords.items():
+        if any(keyword in content_lower for keyword in keywords):
+            return contract_type
+    
+    return "其他合同"
+
+def assess_risk_level(analysis_data: Dict) -> str:
+    """基于分析结果评估风险等级"""
+    risk_score = 0
+    
+    # 高风险因素
+    if "高风险条款" in analysis_data and len(analysis_data["高风险条款"]) > 0:
+        risk_score += len(analysis_data["高风险条款"]) * 3
+    
+    # 中风险因素
+    if "中风险条款" in analysis_data and len(analysis_data["中风险条款"]) > 0:
+        risk_score += len(analysis_data["中风险条款"]) * 2
+    
+    # 低风险因素
+    if "低风险条款" in analysis_data and len(analysis_data["低风险条款"]) > 0:
+        risk_score += len(analysis_data["低风险条款"]) * 1
+    
+    if risk_score >= 6:
+        return "高风险"
+    elif risk_score >= 3:
+        return "中风险"
+    else:
+        return "低风险"
+
 def analyze_contract_content_with_llm(content: str, model: str = "通义千问") -> Dict:
-    """调用大模型分析合同内容，返回结构化结果，调用方式与ai_chat.py一致"""
-    prompt = f"请分析以下合同内容，并以如下标准JSON格式返回：\n\n{content}\n\n返回格式示例：\n{{\n  \"合同摘要\": \n  \"潜在风险条款\": \n}}\n字段全部用中文，且不要返回markdown、代码块或字符串化JSON。注意：不要照搬示例，必须基于实际合同内容分析，请勿直接返回示例内容"
+    """增强版合同分析"""
+    
+    # 1. 识别合同类型
+    contract_type = identify_contract_type(content)
+    
+    # 2. 构建专业提示词
+    prompt = f"""作为专业法律顾问，请分析这份{contract_type}：
 
-    model_key = model.lower()
-    if model_key not in MODEL_CONFIG:
-        raise ValueError(f"暂不支持的模型: {model}")
-    conf = MODEL_CONFIG[model_key]
-    llm = ChatOpenAI(
-        model=conf['model'],
-        base_url=conf['url'],
-        api_key=conf['api_key'],
-        temperature=0.2,
-        max_tokens=1024
-    )
+{content}
 
-    response = llm([HumanMessage(content=prompt)])
-    result = response.content.strip() if hasattr(response, 'content') else str(response)
+请从以下维度进行专业分析：
+
+**合同基本信息**
+- 合同类型：{contract_type}
+- 主要当事人
+- 核心条款
+
+**风险识别**
+- 霸王条款（如：单方面加重责任、排除主要权利）
+- 不公平条款（如：权利义务不对等）
+- 法律漏洞（如：缺少必要条款）
+
+**权利义务分析**
+- 各方权利义务是否对等
+- 是否存在明显不公平的条款
+
+**违约责任评估**
+- 违约条款是否合理
+- 赔偿标准是否公平
+
+**法律依据**
+- 相关法律法规
+
+**专业建议**
+- 针对发现问题的具体建议
+
+请以JSON格式返回，确保分析客观专业，避免误导用户。"""
 
     # 兼容原有的key映射和清洗逻辑
-    def try_json_loads(s):
-        try:
-            return json.loads(s)
-        except Exception:
-            return None
-    import re
-    def extract_json_str(s):
-        s = s.strip()
-        match = re.search(r'```json([\s\S]*?)```', s)
-        if match:
-            return match.group(1).strip()
-        match = re.search(r'```([\s\S]*?)```', s)
-        if match:
-            return match.group(1).strip()
-        match = re.search(r'({[\s\S]*})', s)
-        if match:
-            return match.group(1).strip()
-        return s
     key_map = {
         "summary": "合同摘要", "contract_summary": "合同摘要", "摘要": "合同摘要", "合同摘要": "合同摘要",
         "borrower": "借款人", "lender": "出借人", "amount": "借款金额", "repayment_term": "借款期限", "contract_type": "合同类型", "signed_by": "签署情况", "核心内容": "核心内容",
@@ -117,51 +182,49 @@ def analyze_contract_content_with_llm(content: str, model: str = "通义千问")
             return [normalize_keys(i) for i in data]
         else:
             return data
-    analysis_data = try_json_loads(result)
-    if not analysis_data:
-        json_str = extract_json_str(result)
-        analysis_data = try_json_loads(json_str)
-    if not analysis_data and isinstance(result, str):
-        json_str = extract_json_str(result)
-        analysis_data = try_json_loads(json_str)
-    if not analysis_data:
-        return {"analysis": {"原始内容": result}}
-    analysis_data = normalize_keys(analysis_data)
-    std = {}
-    if "合同摘要" in analysis_data:
-        std["合同摘要"] = analysis_data["合同摘要"]
-    else:
-        summary_fields = ["借款人", "出借人", "借款金额", "借款期限", "还款时间", "合同类型", "签署情况", "核心内容"]
-        summary_obj = {k: v for k, v in analysis_data.items() if k in summary_fields}
-        if summary_obj:
-            std["合同摘要"] = summary_obj
-    if "潜在风险条款" in analysis_data:
-        std["潜在风险条款"] = analysis_data["潜在风险条款"]
-    else:
-        for k in analysis_data:
-            if isinstance(analysis_data[k], list):
-                std["潜在风险条款"] = analysis_data[k]
-                break
-    if not std:
-        return {"analysis": {"原始内容": result}}
-    return {"analysis": std}
-
-def analyze_contract_content_with_llm_stream(content: str, model: str = "通义千问"):
-    """流式调用大模型分析合同内容，返回结构化结果，逐步yield内容"""
-    prompt = f"请分析以下合同内容，并以如下标准JSON格式返回：\n\n{content}\n\n返回格式示例：\n{{\n  \"合同摘要\": \n  \"潜在风险条款\": \n}}\n字段全部用中文，且不要返回markdown、代码块或字符串化JSON。注意：不要照搬示例，必须基于实际合同内容分析，请勿直接返回示例内容"
-
+    
+    # 3. 调用大模型分析
     model_key = model.lower()
     if model_key not in MODEL_CONFIG:
         raise ValueError(f"暂不支持的模型: {model}")
+    
     conf = MODEL_CONFIG[model_key]
     llm = ChatOpenAI(
         model=conf['model'],
         base_url=conf['url'],
-        api_key=conf['api_key'],
-        temperature=0.2,
-        max_tokens=1024,
-        stream=True
+        api_key=SecretStr(conf['api_key']),
+        temperature=0.1  # 降低随机性，提高一致性
     )
-    messages = [HumanMessage(content=prompt)]
-    for chunk in llm.stream(messages):
-        yield chunk.content
+
+    response = llm([HumanMessage(content=prompt)])
+    
+    # 修复response.content的类型处理
+    if hasattr(response, 'content'):
+        result = response.content
+        if isinstance(result, list):
+            result = '\n'.join([str(item) for item in result])
+        result = str(result).strip()
+    else:
+        result = str(response).strip()
+
+    # 4. 解析结果
+    analysis_data = try_json_loads(result)
+    if not analysis_data:
+        json_str = extract_json_str(result)
+        analysis_data = try_json_loads(json_str)
+    
+    if not analysis_data:
+        return {
+            "error": "分析失败",
+            "raw_result": result,
+            "disclaimer": "本分析仅供参考，具体问题请咨询专业律师"
+        }
+    
+    # 5. 评估风险等级
+    risk_level = assess_risk_level(analysis_data)
+    analysis_data["风险等级"] = risk_level
+    
+    # 6. 添加免责声明
+    analysis_data["免责声明"] = "本分析仅供参考，具体问题请咨询专业律师"
+    
+    return {"analysis": analysis_data}
